@@ -38,7 +38,7 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
            text = stringr::str_replace_all(text, "\\,", " xcommax"),
            text = stringr::str_replace_all(text, "\\?", " xquestionx"),
            text = stringr::str_replace_all(text, "\\!", " xexclamationx")) %>%
-    dplyr::transmute(word = (stringr::str_split(text, "\\s+"))) %>%
+    dplyr::transmute(word = (stringr::str_split(tolower(text), "\\s+"))) %>%
     tidyr::unnest(word) %>%
     dplyr::mutate(word = stringr::str_remove_all(word, "[:punct:]+$|^[:punct:]+")) %>%
     dplyr::filter(!stringr::str_detect(word, "[0-9]"))
@@ -148,6 +148,8 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
   }
 
   if ("word3" %in% colnames(word_freqs)){
+
+    # try to start with text that begins a sentence, if possible
     last_word1 <- "xperiodx"
     if (start_word == "xperiodx"){
       last_word2 <- word_freqs %>%
@@ -159,6 +161,15 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       last_word2 <- start_word
     }
 
+    # if the input text doesn't have regular punctuation (maybe it's too short)
+    # ensure we start with some valid ngram if the above didn't work
+    if (length(last_word2) == 0){
+      rnd_num <- round(stats::runif(n=1, min = 1, max = nrow(word_freqs)))
+      last_word1 <- word_freqs$word[[rnd_num]]
+      last_word2 <- word_freqs$word2[[rnd_num]]
+    }
+
+    # capitalize our first word
     last_word2 <- paste0(toupper(substring(last_word2, 1, 1)),
                          tolower(substring(last_word2, 2, nchar(last_word2))))
 
