@@ -37,8 +37,9 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
     dplyr::mutate(text = stringr::str_replace_all(text, "\\.", " xperiodx"),
            text = stringr::str_replace_all(text, "\\,", " xcommax"),
            text = stringr::str_replace_all(text, "\\?", " xquestionx"),
-           text = stringr::str_replace_all(text, "\\!", " xexclamationx"))%>%
-    tidytext::unnest_tokens(output = "word", input = text) %>%
+           text = stringr::str_replace_all(text, "\\!", " xexclamationx")) %>%
+    dplyr::transmute(word = (stringr::str_split(text, "\\s+"))) %>%
+    tidyr::unnest(word) %>%
     dplyr::mutate(word = stringr::str_remove_all(word, "[:punct:]+$|^[:punct:]+")) %>%
     dplyr::filter(!stringr::str_detect(word, "[0-9]"))
 
