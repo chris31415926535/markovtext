@@ -101,6 +101,7 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
 #' }
 generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_seed = NA){
 
+  punctuation_marks <- c("xperiodx", "xquestionx", "xeclamationx", "xcommax")
   punctuation_marks_caps <- c("xperiodx", "xquestionx", "xexclamationx" )
 
   if (is.na(rnd_seed)) rnd_seed <- round(stats::runif(n=1)*1000)
