@@ -207,7 +207,7 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       }
 
       if (length(next_word) == 0){
-        next_word <- sample(word_freqs$word[!word_freqs$word %in% punctuation_marks], size = 1)
+        next_word <- sample(word_freqs$word2[!word_freqs$word2 %in% punctuation_marks], size = 1)
       }
 
 
