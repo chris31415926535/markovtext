@@ -1,0 +1,109 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# markovtext
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+A deeply unserious package for generating random text that mimics a given input text using Markov chains.
+
+## Installation
+
+You can install the development version of markovtext from [GitHub](https://github.com/) with:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("chris31415926535/markovtext")
+```
+
+## Overview
+
+The package has two main functions: `markovtext::get_word_freqs()` generates a word-frequency table, and `markovtext::generate_text()` uses that table to generate random text. It also includes a few sample word-frequency tables to get you started.   
+
+## Example: Generating text based on built-in datasets
+
+This package truly has something for everyone.
+
+### For the Doug Ford superfans
+
+Perhaps you are a [Doug Ford](https://en.wikipedia.org/wiki/Doug_Ford) superfan, and your only wish in life is for a never-ending source of wisdom from Ontario's 26th Premier. Today is your lucky day, for nirvana is only one function call away:
+
+```{r}
+dougford_text <- markovtext::generate_text(markovtext::wordfreqs_dougford_3grams, word_length = 100)
+```
+
+```{r eval=FALSE}
+dougford_text
+```
+
+```{r echo = FALSE}
+knitr::kable(dougford_text, col.names = "")
+```
+
+### For three-year-olds who just won't go to sleep
+
+Or perhaps you're a beleaguered parent facing a three-year-old with an insatiable demand for Dr. Seuss bedtime stories. Again, I've got you covered:
+
+```{r}
+seuss_text <- markovtext::generate_text(markovtext::wordfreqs_catinthehat_3grams, word_length = 100)
+```
+
+```{r eval=FALSE}
+seuss_text
+```
+
+```{r echo = FALSE}
+knitr::kable(seuss_text, col.names = "")
+```
+
+
+## Example: Generating text based on your own inputs
+
+### Creating a word-frequency table
+
+To create a word-frequency table, you can supply a character vector or a data.frame with a column named "text."
+
+Here we'll build our table based on this famous aphorism from the philosopher [James Robert Brown](https://en.wikipedia.org/wiki/James_Robert_Brown):
+
+```{r example}
+library(markovtext)
+
+text <- "I can do wheelin', I can do dealin',
+         But I don't do no damn squealin'.
+         I can dig rappin', I'm ready! I can dig scrappin'.
+         But I can't dig that backstabbin'."
+
+wordfreqs <- markovtext::get_word_freqs(text, n_grams = 3)
+```
+
+### Generating text
+
+Generating text is a simple call to `generate_text()`.
+
+```{r}
+new_text <- markovtext::generate_text(wordfreqs, word_length = 50)
+```
+
+```{r eval=FALSE}
+new_text
+```
+
+
+```{r, echo = FALSE}
+knitr::kable(new_text, col.names = "")
+```
+
+Note that leading and trailing punctuation is trimmed.

@@ -129,7 +129,7 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
 
       # if we are at a dead end, pick a random word
       if (length(next_word) == 0) {
-        rnd_num <- runif(n=1, min=1, max = nrow(word_freqs))
+        rnd_num <- stats::runif(n=1, min=1, max = nrow(word_freqs))
         next_word <- word_freqs$word[[rnd_num]]
       }
 
@@ -190,7 +190,7 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       }
 
       if (length(next_word) == 0 ) {
-        rnd_num <- runif(n=1, min=1, max = nrow(word_freqs))
+        rnd_num <- stats::runif(n=1, min=1, max = nrow(word_freqs))
         next_word <- word_freqs$word[[rnd_num]]
       }
 
