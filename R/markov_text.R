@@ -21,6 +21,9 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
 
   if (is.character(text_input)) text_input <- dplyr::tibble(text = text_input)
 
+  # add a period so that the first sentence is treated equally to the others.
+  text_input <- dplyr::mutate(text_input, text = paste0(". ", text))
+
   n_grams <- as.character(n_grams)
   n_grams <- match.arg(n_grams, n_grams)
   n_grams <- as.numeric(n_grams)
@@ -41,7 +44,8 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
     dplyr::transmute(word = (stringr::str_split(tolower(text), "\\s+"))) %>%
     tidyr::unnest(word) %>%
     dplyr::mutate(word = stringr::str_remove_all(word, "[:punct:]+$|^[:punct:]+")) %>%
-    dplyr::filter(!stringr::str_detect(word, "[0-9]"))
+    dplyr::filter(!stringr::str_detect(word, "[0-9]")) %>%
+    dplyr::filter(word != "")
 
   word_counts <- text_words %>%
     dplyr::group_by(word) %>%
@@ -182,7 +186,7 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       generated_text <- NULL
     }
 
-    generated_text_vec <- vector(length = word_length)
+
     for (i in 1:word_length){
 
       #message(i)
