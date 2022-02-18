@@ -173,7 +173,13 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
     last_word2 <- paste0(toupper(substring(last_word2, 1, 1)),
                          tolower(substring(last_word2, 2, nchar(last_word2))))
 
+    # start with our first word, as long as it's not a randomly-selected
+    # punctuation mark
+    if (!tolower(last_word2) %in% punctuation_marks){
     generated_text <- last_word2
+    } else {
+      generated_text <- NULL
+    }
 
     generated_text_vec <- vector(length = word_length)
     for (i in 1:word_length){
