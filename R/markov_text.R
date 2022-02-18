@@ -207,15 +207,9 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       }
 
       if (length(next_word) == 0){
-        next_word <- word_freqs %>%
-          dplyr::slice_sample(n=1) %>%
-          dplyr::pull(word)
+        next_word <- sample(word_freqs$word[!word_freqs$word %in% punctuation_marks], size = 1)
       }
 
-      if (length(next_word) == 0 ) {
-        rnd_num <- stats::runif(n=1, min=1, max = nrow(word_freqs))
-        next_word <- word_freqs$word[[rnd_num]]
-      }
 
       if (last_word2 %in% punctuation_marks_caps){
         next_word <-   paste0(toupper(substring(next_word, 1, 1)),
