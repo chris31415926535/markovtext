@@ -14,11 +14,22 @@ desc <- n <- num <- pct <- text <- word <- word2 <- word3 <- NULL
 #' generate_text(wordfreqs_prideprejudice)
 #' }
 get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
+
+  # input validation
+  if (!(is.character(text_input) | ("data.frame" %in% class(text_input))) |
+      (("data.frame" %in% class(text_input)) & (!"text" %in% colnames(text_input)))) stop ("text_input must be either a character vector or a data.frame with a column named 'text'.")
+
+  if (is.character(text_input)) text_input <- dplyr::tibble(text = text_input)
+
   n_grams <- as.character(n_grams)
   n_grams <- match.arg(n_grams, n_grams)
   n_grams <- as.numeric(n_grams)
+  if (!is.numeric(n_grams) | is.na(n_grams)) stop ("n_grams must be either 2 or 3.")
 
-  num_words <- 3000
+  num_words <- as.numeric(num_words)
+  if(!is.numeric(num_words) | is.na(num_words)) stop ("num_words must be numeric.")
+
+
 
   punctuation_marks <- c("xperiodx", "xcommax", "xquestionx", "xexclamationx" )
 
@@ -88,14 +99,14 @@ get_word_freqs <- function(text_input, num_words = 500, n_grams = c(2,3)){
 #' generate_text(wordfreqs_prideprejudice)
 #' }
 generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_seed = NA){
-  if (is.na(rnd_seed)) rnd_seed <- round(stats::runif(n=1)*1000)
-
-  if (is.na(start_word)) start_word <- "xperiodx"
-  start_word <- tolower(start_word)
-
-  if (!start_word %in% tolower(word_freqs$word)) start_word <- "xperiodx"
 
   punctuation_marks_caps <- c("xperiodx", "xquestionx", "xexclamationx" )
+
+  if (is.na(rnd_seed)) rnd_seed <- round(stats::runif(n=1)*1000)
+
+  # choose our starting word, either given by user or a period.
+  start_word <- tolower(start_word)
+  if (is.na(start_word)) start_word <- "xperiodx"
 
   generated_text <- NULL
   set.seed(rnd_seed)
@@ -109,12 +120,20 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
       #message(i)
       random_num <- stats::runif(n=1, min=0, max=1)
 
+      # pick next word using probabilities based on last word
       next_word <- word_freqs %>%
         dplyr::filter(word == tolower(last_word),
                pct > random_num) %>%
         dplyr::slice_head(n=1) %>%
         dplyr::pull(word2)
 
+      # if we are at a dead end, pick a random word
+      if (length(next_word) == 0) {
+        rnd_num <- runif(n=1, min=1, max = nrow(word_freqs))
+        next_word <- word_freqs$word[[rnd_num]]
+      }
+
+      # capitalize if we need to
       if (last_word %in% punctuation_marks_caps) {
         next_word <- paste0(toupper(substring(next_word, 1, 1)),
                             tolower(substring(next_word, 2, nchar(next_word))))
@@ -157,27 +176,28 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
         dplyr::slice_head(n=1) %>%
         dplyr::pull(word3)
 
-      if (purrr::is_empty(next_word)){
+      if (length(next_word) == 0){
         next_word <- word_freqs %>%
           dplyr::filter(word2 == tolower(last_word2)) %>%
           dplyr::slice_sample(n=1) %>%
           dplyr::pull(word3)
       }
 
-      if (purrr::is_empty(next_word)){
+      if (length(next_word) == 0){
         next_word <- word_freqs %>%
           dplyr::slice_sample(n=1) %>%
           dplyr::pull(word)
       }
 
-      if (purrr::is_empty(next_word) ) stop()
+      if (length(next_word) == 0 ) {
+        rnd_num <- runif(n=1, min=1, max = nrow(word_freqs))
+        next_word <- word_freqs$word[[rnd_num]]
+      }
 
       if (last_word2 %in% punctuation_marks_caps){
         next_word <-   paste0(toupper(substring(next_word, 1, 1)),
                               tolower(substring(next_word, 2, nchar(next_word))))
       }
-
-      #generated_text_vec[[i]] <- next_word
 
       generated_text <- paste(generated_text, next_word)
 
@@ -186,8 +206,6 @@ generate_text <- function(word_freqs, word_length = 200, start_word = NA, rnd_se
 
     }
   }
-
-  #generated_text <- stringr::str_flatten(generated_text_vec, collapse = " ")
 
   generated_text <- generated_text %>%
     stringr::str_replace_all(" xperiodx", "\\.") %>%

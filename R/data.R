@@ -35,3 +35,9 @@
 #'
 #' @source \url{https://www.gutenberg.org/files/1998/1998-h/1998-h.htm#link2H_4_0004}
 "wordfreqs_zarathustra_3grams"
+
+#' 3-Gram word-frequency Markov table for the whale's monologue from The Hitchhiker's Guide to the Galaxy by Douglas Adams.
+#'
+#' For use with the function `markovtext::generate_text()`.
+#'
+"wordfreqs_whale_3grams"
